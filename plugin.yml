@@ -1,0 +1,12 @@
+name: Replay
+author: xPrim69x
+website: https://www.github.com/Prim69
+description: A plugin made to replay or record other players' actions!
+version: 4.20.69-ALPHA-69
+main: Prim69\Replay\Main
+api: 3.0.0
+mcpe-protocol: [431]
+permissions:
+  replay.command:
+    description: Permission to use the replay command!
+    default: op
