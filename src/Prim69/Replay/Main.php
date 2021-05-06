@@ -15,6 +15,7 @@ use pocketmine\plugin\PluginBase;
 use function get_class;
 use function in_array;
 use function microtime;
+use function round;
 
 class Main extends PluginBase implements Listener {
 
