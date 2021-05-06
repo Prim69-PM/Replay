@@ -4,14 +4,16 @@ namespace Prim69\Replay;
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
+use pocketmine\command\PluginIdentifiableCommand;
 use pocketmine\Player;
+use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat as TF;
 use function array_keys;
 use function count;
 use function implode;
 use function is_null;
 
-class ReplayCommand extends Command {
+class ReplayCommand extends Command implements PluginIdentifiableCommand {
 
 	/** @var Main */
 	public $main;
@@ -110,6 +112,10 @@ class ReplayCommand extends Command {
 
 	public function isSaved(string $name) : bool {
 		return isset($this->main->saved[$name]);
+	}
+
+	public function getPlugin() : Plugin {
+		return $this->main;
 	}
 
 }
