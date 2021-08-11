@@ -55,6 +55,16 @@ class ReplayTask extends Task
 		$this->list = $main->saved[$target->getName()]["packets"];
 		$this->blocks = $main->saved[$target->getName()]["blocks"];
 
+		foreach ($main->saved[$target->getName()]["preBlocks"] as $block) {
+			$blockPK = new UpdateBlockPacket();
+			$blockPK->x = $block->x;
+			$blockPK->y = $block->y;
+			$blockPK->z = $block->z;
+			$blockPK->blockRuntimeId = $block->getRuntimeId();
+			$blockPK->flags = UpdateBlockPacket::FLAG_NETWORK;
+			$player->sendDataPacket($blockPK);
+		}
+
 		$this->eid = Entity::$entityCount++;
 
 		$p = $main->positions[$target->getName()];
