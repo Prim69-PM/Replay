@@ -19,6 +19,7 @@ use pocketmine\block\Block;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
 use pocketmine\event\block\BlockEvent;
 use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\protocol\types\LegacySkinAdapter;
 use function array_key_first;
 use function count;
 use function property_exists;
@@ -81,12 +82,10 @@ class ReplayTask extends Task
 		$pk->pitch = $p[1];
 		$pk->item = ItemStackWrapper::legacy(Item::get(0));
 		$player->dataPacket($pk);
-		if (isset($this->main->skinData[$target->getXuid()])) {
-			$skinpk = new PlayerSkinPacket();
-			$skinpk->uuid = $pk->uuid;
-			$skinpk->skin = $this->main->skinData[$target->getXuid()];
-			$player->dataPacket($skinpk);
-		}
+		$skinpk = new PlayerSkinPacket();
+		$skinpk->uuid = $pk->uuid;
+		$skinpk->skin = (new LegacySkinAdapter())->toSkinData($target->getSkin());
+		$player->dataPacket($skinpk);
 	}
 
 	public function onRun(int $currentTick)
