@@ -68,12 +68,16 @@ class Main extends PluginBase implements Listener
 
 	public function onBlockPlace(BlockPlaceEvent $event) {
 		$player = $event->getPlayer();
+		if (!$this->isRecording($player->getName())) return;
 		$this->recording[$player->getName()]["blocks"][(string) round(microtime(true), 2)] = $event->getBlock();
+		$this->recording[$player->getName()]["preBlocks"][] = Block::get(0, 0, $event->getBlock());
 	}
 
 	public function onBlockBreak(BlockBreakEvent $event) {
 		$player = $event->getPlayer();
+		if (!$this->isRecording($player->getName())) return;
 		$this->recording[$player->getName()]["blocks"][(string) round(microtime(true), 2)] = Block::get(0, 0, $event->getBlock());
+		$this->recording[$player->getName()]["preBlocks"][] = $event->getBlock();
 	}
 
 	public function onReceive(DataPacketReceiveEvent $event)
