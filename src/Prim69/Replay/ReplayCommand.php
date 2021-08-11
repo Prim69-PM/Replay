@@ -72,7 +72,8 @@ class ReplayCommand extends Command implements PluginIdentifiableCommand {
 				}
 				$this->main->recording[$name] = [
 					"packets" => [],
-					"blocks" => []
+					"blocks" => [],
+					"preBlocks" => []
 				];
 				$this->main->positions[$name] = [$player->yaw, $player->pitch, $player->x, $player->y, $player->z, $player->getLevel()->getName()];
 				$sender->sendMessage(TF::GREEN . "Successfully started recording " . TF::WHITE . "$name! " . TF::GREEN . "Use /replay save followed by /replay watch to view it!");
