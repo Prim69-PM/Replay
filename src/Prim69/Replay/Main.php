@@ -18,6 +18,9 @@ use pocketmine\network\mcpe\protocol\types\SkinData;
 use pocketmine\network\mcpe\protocol\types\SkinAnimation;
 use pocketmine\network\mcpe\protocol\types\PersonaPieceTintColor;
 use pocketmine\network\mcpe\protocol\types\PersonaSkinPiece;
+use pocketmine\event\block\BlockPlaceEvent;
+use pocketmine\event\block\BlockBreakEvent;
+use pocketmine\block\Block;
 use pocketmine\utils\UUID;
 use function get_class;
 use function in_array;
@@ -63,13 +66,23 @@ class Main extends PluginBase implements Listener
 		return isset($this->recording[$name]);
 	}
 
+	public function onBlockPlace(BlockPlaceEvent $event) {
+		$player = $event->getPlayer();
+		$this->recording[$player->getName()]["blocks"][(string) round(microtime(true), 2)] = $event->getBlock();
+	}
+
+	public function onBlockBreak(BlockBreakEvent $event) {
+		$player = $event->getPlayer();
+		$this->recording[$player->getName()]["blocks"][(string) round(microtime(true), 2)] = Block::get(0, 0, $event->getBlock());
+	}
+
 	public function onReceive(DataPacketReceiveEvent $event)
 	{
 		$pk = $event->getPacket();
 		$player = $event->getPlayer();
 		if ($this->isRecording($player->getName())) {
 			if (!in_array(get_class($pk), self::IGNORE_SERVERBOUND)) {
-				$this->recording[$player->getName()][(string) round(microtime(true), 2)] = $pk;
+				$this->recording[$player->getName()]["packets"][(string) round(microtime(true), 2)] = $pk;
 			}
 		}
 		if ($pk instanceof LoginPacket) {
