@@ -101,8 +101,7 @@ class ReplayTask extends Task
 				$pk->entityUniqueId = $this->eid;
 				$this->player->dataPacket($pk);
 				foreach ($this->setBlocks as $block) {
-					if (!$block instanceof Block) continue;
-					if (is_null($block->getLevel()) || is_null($block->getPosition())) continue;
+					if (!$block instanceof Block || is_null($block->getLevel()) continue;
 					$pk = new UpdateBlockPacket();
 					$pk->x = $block->x;
 					$pk->y = $block->y;
@@ -127,17 +126,15 @@ class ReplayTask extends Task
 		if (isset($this->blocks[$key])) {
 			/** @var Block */
 			$relayed = $this->blocks[$key];
-			if ($relayed instanceof Block && $relayed instanceof Vector3) {
-				if ($relayed->x !== null && $relayed->y !== null && $relayed->z !== null && $relayed->getRuntimeId() !== null) {
-					$pk = new UpdateBlockPacket();
-					$pk->x = $relayed->x;
-					$pk->y = $relayed->y;
-					$pk->z = $relayed->z;
-					$pk->blockRuntimeId = $relayed->getRuntimeId();
-					$pk->flags = UpdateBlockPacket::FLAG_NETWORK;
-					$this->player->sendDataPacket($pk);
-					$this->setBlocks[] = $relayed;
-				}
+			if ($relayed instanceof Block) {
+				$pk = new UpdateBlockPacket();
+				$pk->x = $relayed->x;
+				$pk->y = $relayed->y;
+				$pk->z = $relayed->z;
+				$pk->blockRuntimeId = $relayed->getRuntimeId();
+				$pk->flags = UpdateBlockPacket::FLAG_NETWORK;
+				$this->player->sendDataPacket($pk);
+				$this->setBlocks[] = $relayed;
 			}
 		}
 
