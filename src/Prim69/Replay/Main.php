@@ -12,12 +12,17 @@ use pocketmine\network\mcpe\protocol\ResourcePackChunkRequestPacket;
 use pocketmine\network\mcpe\protocol\TextPacket;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
+use pocketmine\event\block\BlockPlaceEvent;
+use pocketmine\event\block\BlockBreakEvent;
+use pocketmine\block\Block;
+use pocketmine\utils\UUID;
 use function get_class;
 use function in_array;
 use function microtime;
 use function round;
 
-class Main extends PluginBase implements Listener {
+class Main extends PluginBase implements Listener
+{
 
 	/** @var array */
 	public $recording = [];
@@ -36,38 +41,56 @@ class Main extends PluginBase implements Listener {
 		TextPacket::class
 	];
 
-	public function onEnable(){
+	public function onEnable()
+	{
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 		$this->getServer()->getCommandMap()->register($this->getName(), new ReplayCommand($this));
 	}
 
-	public function showRecording(Player $player, Player $target) {
+	public function showRecording(Player $player, Player $target)
+	{
 		$this->getScheduler()->scheduleRepeatingTask(new ReplayTask($player, $target, $this), 1);
 	}
 
-	public function isRecording(string $name) : bool {
+	public function isRecording(string $name): bool
+	{
 		return isset($this->recording[$name]);
 	}
 
-	public function onReceive(DataPacketReceiveEvent $event){
+	public function onBlockPlace(BlockPlaceEvent $event) {
+		$player = $event->getPlayer();
+		if (!$this->isRecording($player->getName())) return;
+		$this->recording[$player->getName()]["blocks"][(string) round(microtime(true), 2)] = $event->getBlock();
+		$this->recording[$player->getName()]["preBlocks"][] = Block::get(0, 0, $event->getBlock());
+	}
+
+	public function onBlockBreak(BlockBreakEvent $event) {
+		$player = $event->getPlayer();
+		if (!$this->isRecording($player->getName())) return;
+		$this->recording[$player->getName()]["blocks"][(string) round(microtime(true), 2)] = Block::get(0, 0, $event->getBlock());
+		$this->recording[$player->getName()]["preBlocks"][] = $event->getBlock();
+	}
+
+	public function onReceive(DataPacketReceiveEvent $event)
+	{
 		$pk = $event->getPacket();
 		$player = $event->getPlayer();
-		if($this->isRecording($player->getName())){
-			if(!in_array(get_class($pk), self::IGNORE_SERVERBOUND)){
-				$this->recording[$player->getName()][(string) round(microtime(true), 2)] = $pk;
+		if ($this->isRecording($player->getName())) {
+			if (!in_array(get_class($pk), self::IGNORE_SERVERBOUND)) {
+				$this->recording[$player->getName()]["packets"][(string) round(microtime(true), 2)] = $pk;
 			}
 		}
 	}
 
-	public function onQuit(PlayerQuitEvent $event){
+	public function onQuit(PlayerQuitEvent $event)
+	{
 		$name = $event->getPlayer()->getName();
-		if($this->isRecording($name)){
+		if ($this->isRecording($name)) {
 			$this->saved[$name] = $this->recording[$name];
 			unset($this->recording[$name]);
 		}
 	}
 
-	// dont feel like finishing this
 	/*public function throwFakeProjectile(Player $player, ?ProjectileItem $item, Location $l){
 		$pk = new AddActorPacket();
 		$pk->position = $l;
@@ -87,5 +110,4 @@ class Main extends PluginBase implements Listener {
 
 		$player->dataPacket($pk);
 	}*/
-
 }
