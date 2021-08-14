@@ -23,6 +23,7 @@ use pocketmine\network\mcpe\protocol\types\LegacySkinAdapter;
 use function array_key_first;
 use function count;
 use function property_exists;
+use function is_null;
 
 class ReplayTask extends Task
 {
@@ -100,8 +101,8 @@ class ReplayTask extends Task
 				$pk->entityUniqueId = $this->eid;
 				$this->player->dataPacket($pk);
 				foreach ($this->setBlocks as $block) {
-					if (!($block instanceof Block && $block instanceof Vector3)) continue;
-					if (!($block->x !== null && $block->y !== null && $block->z !== null && $block->getRuntimeId() !== null && $block->getLevel() !== null)) continue;
+					if (!$block instanceof Block) continue;
+					if (is_null($block->getRuntimeId()) || is_null($block->getLevel()) || is_null($block->getPosition())) continue;
 					$pk = new UpdateBlockPacket();
 					$pk->x = $block->x;
 					$pk->y = $block->y;
