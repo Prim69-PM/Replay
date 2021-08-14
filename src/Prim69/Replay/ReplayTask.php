@@ -101,7 +101,7 @@ class ReplayTask extends Task
 				$pk->entityUniqueId = $this->eid;
 				$this->player->dataPacket($pk);
 				foreach ($this->setBlocks as $block) {
-					if (!$block instanceof Block || is_null($block->getLevel()) continue;
+					if (!$block instanceof Block || is_null($block->getLevel())) continue;
 					$pk = new UpdateBlockPacket();
 					$pk->x = $block->x;
 					$pk->y = $block->y;
