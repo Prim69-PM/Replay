@@ -138,7 +138,6 @@ class ReplayTask extends Task
 			}
 		}
 
-		unset($this->blocks[$key]);
-		unset($this->list[$key]);
+		unset($this->blocks[$key], $this->list[$key]);
 	}
 }
